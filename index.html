@@ -385,7 +385,7 @@ const STRINGS = {
     noCollModels: 'No models with current filter.',
     resultsFor:   q => `Results for "${q}"`,
     error:        e => `Could not connect to Civitai: ${e}. Reload to try again.`,
-    footer:       'Live data via <a href="https://civitai.com/user/Cinabrio" target="_blank" rel="noopener">Civitai API</a> · Cinabrio &copy; 2025',
+    footer:       'Live data via <a href="https://civitai.red/user/Cinabrio" target="_blank" rel="noopener">Civitai API</a> · Cinabrio &copy; 2025',
     unclassified: 'Unclassified',
   },
   es: {
@@ -411,7 +411,7 @@ const STRINGS = {
     noCollModels: 'No hay modelos con el filtro actual.',
     resultsFor:   q => `Resultados para "${q}"`,
     error:        e => `No se pudo conectar con Civitai: ${e}. Recarga para intentar de nuevo.`,
-    footer:       'Datos en tiempo real via <a href="https://civitai.com/user/Cinabrio" target="_blank" rel="noopener">Civitai API</a> · Cinabrio &copy; 2025',
+    footer:       'Datos en tiempo real via <a href="https://civitai.red/user/Cinabrio" target="_blank" rel="noopener">Civitai API</a> · Cinabrio &copy; 2025',
     unclassified: 'Sin clasificar',
   }
 };
@@ -521,7 +521,7 @@ function cardHTML(m, linkSeries) {
   const {char, series} = parse(m);
   const img = thumb(m);
   const b   = getBase(m);
-  const url = `https://civitai.com/models/${m.id}`;
+  const url = `https://civitai.red/models/${m.id}`;
   const imgEl = img
     ? `<img src="${img}" alt="" loading="lazy" onerror="this.parentElement.innerHTML=window.__PH"/>`
     : PH;
@@ -881,7 +881,7 @@ function updateProgress() {
 }
 
 async function fetchPage(cursor) {
-  let url=`https://civitai.com/api/v1/models?username=${USER}&limit=100&sort=Newest&nsfw=true`;
+  let url=`https://civitai.red/api/v1/models?username=${USER}&limit=100&sort=Newest&nsfw=true`;
   if (cursor) url+=`&cursor=${encodeURIComponent(cursor)}`;
   const res=await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
