@@ -27,6 +27,7 @@
     --illus-color: #6bcba0;
     --pony-color: #df8bc0;
     --ctrl-h: 54px;
+    --side-w: 244px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; min-height: 100vh; overflow-x: hidden; }
@@ -105,11 +106,6 @@
   .fb.active        { background: var(--surface2); border-color: var(--accent);      color: var(--accent); }
   .fb.active.illus  { border-color: var(--illus-color); color: var(--illus-color); }
   .fb.active.pony   { border-color: var(--pony-color);  color: var(--pony-color);  }
-  select.ss {
-    padding: 0.36rem 0.72rem; background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 4px; color: var(--text-sec); font-family: 'DM Sans', sans-serif;
-    font-size: 0.72rem; outline: none; cursor: pointer;
-  }
   .rand-btns { display: flex; gap: 0.5rem; margin-left: auto; flex-wrap: wrap; }
   .rand-btn {
     display: flex; align-items: center; gap: 6px;
@@ -124,56 +120,65 @@
   .rand-btn:hover .rand-icon { transform: rotate(180deg); }
 
   /* ── Main ── */
-  main { position: relative; z-index: 10; max-width: 1600px; margin: 0 auto; padding: 2rem; }
+  main { position: relative; z-index: 10; max-width: 2400px; margin: 0 auto; padding: 2rem; }
+
+  /* ── Three-zone layout: series (left) · gallery (center) · recent (right) ── */
+  .layout {
+    display: grid;
+    grid-template-columns: var(--side-w) minmax(0, 1fr);
+    grid-template-areas: "series content";
+    gap: 1.75rem; align-items: start;
+  }
+  .side-series { grid-area: series; }
+  .content     { grid-area: content; }
+
+  /* ── Sidebars ── */
+  .sidebar {
+    position: sticky; top: calc(var(--ctrl-h) + 1rem);
+    max-height: calc(100vh - var(--ctrl-h) - 2rem);
+    display: flex; flex-direction: column;
+  }
+  .side-head {
+    display: flex; align-items: baseline; gap: 0.55rem; margin-bottom: 0.85rem;
+    padding-bottom: 0.6rem; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .side-head svg { opacity: 0.55; flex-shrink: 0; align-self: center; }
+  .side-title { font-family: 'Cinzel', serif; font-size: 0.92rem; font-weight: 400; letter-spacing: 0.05em; color: var(--text); }
+  .side-count { font-size: 0.7rem; color: var(--text-muted); font-family: 'DM Sans', sans-serif; }
+  .side-list { overflow-y: auto; overflow-x: hidden; flex: 1; display: flex; flex-direction: column; gap: 0.3rem; padding-right: 4px; }
+  .side-list::-webkit-scrollbar { width: 7px; }
+  .side-list::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 4px; }
+  .side-list::-webkit-scrollbar-track { background: transparent; }
+
+  /* shared compact row pieces */
+  .row-meta { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
+  .row-name { font-size: 0.78rem; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .empty-sm { font-size: 0.76rem; color: var(--text-muted); padding: 0.6rem 0.2rem; }
+
+  /* series rows (buttons w/ count) */
+  .series-row {
+    display: flex; align-items: center; gap: 10px; padding: 0.42rem 0.55rem;
+    border-radius: 6px; cursor: pointer; width: 100%; text-align: left;
+    background: none; border: 1px solid transparent; transition: background 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .series-row:hover { background: var(--surface2); border-color: var(--border); }
+  .series-row.active { background: var(--surface3); border-color: rgba(201,169,110,0.4); }
+  .series-row .row-name { font-family: 'Cinzel', serif; font-size: 0.76rem; font-weight: 400; letter-spacing: 0.03em; color: var(--text-sec); }
+  .series-row:hover .row-name, .series-row.active .row-name { color: var(--text); }
+  .se-count {
+    font-size: 0.66rem; font-weight: 500; color: var(--text-sec); flex-shrink: 0;
+    background: var(--surface3); padding: 0.1rem 0.5rem; border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.14); min-width: 1.8rem; text-align: center;
+  }
+  .series-row.active .se-count { color: var(--accent); border-color: rgba(201,169,110,0.45); background: var(--accent-dim); }
 
   /* ── Spotlight section ── */
-  .spotlight-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 1.1rem;
-  }
+  .spotlight-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.1rem; }
+  .sec-title { font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 400; letter-spacing: 0.06em; color: var(--text); }
+  .sec-count { font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 300; color: var(--text-muted); margin-left: 0.85rem; }
 
-  /* Unified section title — Cinzel, same weight/size everywhere */
-  .sec-title {
-    font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 400;
-    letter-spacing: 0.06em; color: var(--text);
-  }
-  .sec-count {
-    font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 300;
-    color: var(--text-muted); margin-left: 0.85rem;
-  }
-
-  .spotlight-grid {
-    display: grid; gap: 1rem; margin-bottom: 3rem;
-    grid-template-columns: repeat(5, 1fr);
-  }
-
-  /* ── Series list ── */
-  .series-list-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 0.55rem;
-  }
-  .series-entry {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0.7rem 1rem; background: var(--surface); border: 1px solid var(--border);
-    border-left: 2px solid transparent; border-radius: 6px;
-    cursor: pointer; transition: all 0.18s; gap: 10px;
-    font-family: 'DM Sans', sans-serif; font-weight: 300; text-align: left; width: 100%;
-  }
-  .series-entry:hover { border-color: var(--border-hover); background: var(--surface2); border-left-color: var(--accent); }
-  .series-entry.active { background: var(--surface3); border-color: rgba(201,169,110,0.5); border-left-color: var(--accent); }
-  .se-name {
-    flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    font-family: 'Cinzel', serif; font-size: 0.82rem; font-weight: 400;
-    letter-spacing: 0.04em; color: var(--text-sec);
-  }
-  .series-entry:hover .se-name,
-  .series-entry.active .se-name { color: var(--text); }
-  .se-count {
-    font-size: 0.72rem; font-weight: 500; color: var(--text-sec); flex-shrink: 0;
-    background: var(--surface3); padding: 0.15rem 0.6rem; border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.14); font-family: 'DM Sans', sans-serif;
-    min-width: 2rem; text-align: center;
-  }
-  .series-entry.active .se-count { color: var(--accent); border-color: rgba(201,169,110,0.45); background: var(--accent-dim); }
+  .spotlight-grid { display: grid; gap: 1rem; grid-template-columns: repeat(5, 1fr); }
 
   /* ── Cards ── */
   .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; }
@@ -202,7 +207,6 @@
     font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 300; letter-spacing: 0.01em;
     color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 0.45rem;
     display: block; cursor: pointer; transition: color 0.15s;
-    background: none; border: none; padding: 0; text-align: left; width: 100%;
   }
   .cs-link:hover { color: #4dc8da; text-decoration: underline; text-underline-offset: 3px; }
   .ct { display: flex; gap: 0.25rem; flex-wrap: wrap; }
@@ -213,7 +217,7 @@
   .tI { color: var(--illus-color);      border-color: rgba(107,203,160,0.35); background: rgba(107,203,160,0.09); }
   .tP { color: var(--pony-color);       border-color: rgba(223,139,192,0.35); background: rgba(223,139,192,0.09); }
 
-  /* ── Loading strip (subtle, doesn't block UI) ── */
+  /* ── Loading strip ── */
   .load-strip {
     display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
     background: rgba(10,10,15,0.92); border-top: 1px solid var(--border);
@@ -226,7 +230,7 @@
   .load-bar-wrap { flex: 1; height: 2px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
   .load-bar { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.3s; width: 0%; }
 
-  /* ── First-load splash (only if 0 models yet) ── */
+  /* ── Splash ── */
   .splash { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5rem 2rem; gap: 1.5rem; }
   .sp-lg { width: 36px; height: 36px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
   .splash-txt { font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-sec); font-family: 'DM Sans', sans-serif; }
@@ -238,8 +242,15 @@
   footer a { color: var(--text-sec); text-decoration: none; }
   footer a:hover { color: var(--accent); }
 
-  @media (max-width: 1100px) { .spotlight-grid, .grid { grid-template-columns: repeat(4, 1fr); } }
-  @media (max-width: 850px)  { .spotlight-grid, .grid { grid-template-columns: repeat(3, 1fr); } }
+  /* ── Responsive ── */
+  @media (max-width: 1500px) { .spotlight-grid, .grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 1100px) {
+    .layout { grid-template-columns: 1fr; grid-template-areas: "content" "series"; gap: 1.25rem; }
+    .sidebar { position: static; max-height: none; }
+    .side-list { flex-direction: row; overflow-x: auto; overflow-y: hidden; gap: 0.5rem; padding-right: 0; padding-bottom: 0.4rem; -webkit-overflow-scrolling: touch; }
+    .series-row { flex: 0 0 auto; width: 184px; }
+    .spotlight-grid, .grid { grid-template-columns: repeat(3, 1fr); }
+  }
   @media (max-width: 600px) {
     header { padding: 2rem 1rem 1.5rem; }
     main { padding: 1.1rem 0.9rem; }
@@ -247,6 +258,12 @@
     .spotlight-grid, .grid { grid-template-columns: repeat(2, 1fr); }
     .rand-btns { margin-left: 0; }
   }
+  @media (prefers-reduced-motion: reduce) {
+    .card { animation: none; }
+    .card:hover { transform: none; }
+    .rand-btn:hover .rand-icon { transform: none; }
+  }
+
   /* ── Lang switcher ── */
   .lang-btn {
     padding: 0.32rem 0.65rem; border-radius: 4px; border: 1px solid var(--border);
@@ -314,7 +331,7 @@
 
 <main id="main">
 
-  <!-- First-load splash (shown only until first batch arrives) -->
+  <!-- First-load splash -->
   <div class="splash" id="splash">
     <div class="sp-lg"></div>
     <div class="splash-txt" id="splashTxt"></div>
@@ -323,33 +340,43 @@
   <!-- Error -->
   <div id="viewError" class="err" style="display:none"></div>
 
-  <!-- Search results -->
-  <div id="viewBrowse" style="display:none">
-    <div style="margin-bottom:1.25rem; padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
-      <div style="font-family:'Cinzel',serif; font-size:1rem; font-weight:400; letter-spacing:0.06em; color:var(--text-sec);" id="browseTitle"></div>
-      <div style="font-size:0.74rem; color:var(--text-muted); margin-top:0.2rem;" id="browseCount"></div>
-    </div>
-    <div class="grid" id="browseGrid"></div>
-  </div>
+  <!-- Three-zone layout -->
+  <div class="layout" id="layout" style="display:none">
 
-  <!-- Home -->
-  <div id="viewHome" style="display:none">
-
-    <!-- Spotlight panel -->
-    <div class="spotlight-header">
-      <div>
-        <span class="sec-title" id="spotTitle"></span>
-        <span class="sec-count" id="spotCount"></span>
+    <!-- LEFT: series index (compact column) -->
+    <aside class="sidebar side-series">
+      <div class="side-head">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg>
+        <span class="side-title" id="txt-explore"></span>
+        <span class="side-count" id="seriesListCount"></span>
       </div>
-    </div>
-    <div class="spotlight-grid" id="spotGrid"></div>
+      <div class="side-list" id="seriesList"></div>
+    </aside>
 
-    <!-- Series list -->
-    <div style="margin-bottom:1.1rem; padding-bottom:0.75rem; border-bottom:1px solid var(--border); display:flex; align-items:baseline; gap:0.75rem;">
-      <span class="sec-title" id="txt-explore"></span>
-      <span class="sec-count" id="seriesListCount"></span>
+    <!-- CENTER: spotlight / gallery -->
+    <div class="content">
+
+      <!-- Search results -->
+      <div id="viewBrowse" style="display:none">
+        <div style="margin-bottom:1.25rem; padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
+          <div style="font-family:'Cinzel',serif; font-size:1rem; font-weight:400; letter-spacing:0.06em; color:var(--text-sec);" id="browseTitle"></div>
+          <div style="font-size:0.74rem; color:var(--text-muted); margin-top:0.2rem;" id="browseCount"></div>
+        </div>
+        <div class="grid" id="browseGrid"></div>
+      </div>
+
+      <!-- Home -->
+      <div id="viewHome" style="display:none">
+        <div class="spotlight-header">
+          <div>
+            <span class="sec-title" id="spotTitle"></span>
+            <span class="sec-count" id="spotCount"></span>
+          </div>
+        </div>
+        <div class="spotlight-grid" id="spotGrid"></div>
+      </div>
+
     </div>
-    <div class="series-list-grid" id="seriesListGrid"></div>
 
   </div>
 
@@ -375,8 +402,8 @@ const STRINGS = {
     searchPHtags: 'tag1, tag2, tag3… (comma = tag filter)',
     resultsForTags: (tags) => `Tags: ${tags.join(' · ')}`,
     spotRandom:   'Random Selection',
-    explore:      'Explore by Series',
-    seriesCount:  n => `${n} series`,
+    explore:      'Series',
+    seriesCount:  n => `${n}`,
     modelCount:   n => `${n} model${n!==1?'s':''}`,
     loading:      'Connecting to Civitai…',
     loadingN:     (n,t) => t>0 ? `Loading models… ${n} / ${t}` : `Loading models… ${n}`,
@@ -401,8 +428,8 @@ const STRINGS = {
     searchPHtags: 'tag1, tag2, tag3… (coma = filtro por tags)',
     resultsForTags: (tags) => `Tags: ${tags.join(' · ')}`,
     spotRandom:   'Selección aleatoria',
-    explore:      'Explorar por serie',
-    seriesCount:  n => `${n} series`,
+    explore:      'Series',
+    seriesCount:  n => `${n}`,
     modelCount:   n => `${n} modelo${n!==1?'s':''}`,
     loading:      'Conectando con Civitai…',
     loadingN:     (n,t) => t>0 ? `Cargando modelos… ${n} / ${t}` : `Cargando modelos… ${n}`,
@@ -422,28 +449,27 @@ function s() { return STRINGS[lang]; }
 function applyLang() {
   document.documentElement.lang = lang;
   document.title = `Cinabrio — ${s().title}`;
-  document.getElementById('txt-eyebrow').textContent    = s().title;
-  document.getElementById('txt-sub').textContent        = s().sub;
+  document.getElementById('txt-eyebrow').textContent     = s().title;
+  document.getElementById('txt-sub').textContent         = s().sub;
   document.getElementById('txt-stat-models').textContent = s().statModels;
   document.getElementById('txt-stat-series').textContent = s().statSeries;
-  document.getElementById('fb-all-type').textContent    = s().allType;
-  document.getElementById('fb-all-base').textContent    = s().allBase;
-  document.getElementById('txt-btn-char').textContent   = s().btnChar;
-  document.getElementById('txt-btn-coll').textContent   = s().btnColl;
+  document.getElementById('fb-all-type').textContent     = s().allType;
+  document.getElementById('fb-all-base').textContent     = s().allBase;
+  document.getElementById('txt-btn-char').textContent    = s().btnChar;
+  document.getElementById('txt-btn-coll').textContent    = s().btnColl;
   document.getElementById('q').placeholder = s().searchPH;
   updatePlaceholder();
-  document.getElementById('txt-explore').textContent   = s().explore;
-  document.getElementById('txt-footer').innerHTML      = s().footer;
-  document.getElementById('splashTxt').textContent     = s().loading;
+  document.getElementById('txt-explore').textContent = s().explore;
+  document.getElementById('txt-footer').innerHTML    = s().footer;
+  document.getElementById('splashTxt').textContent   = s().loading;
   document.getElementById('langEN').classList.toggle('active', lang==='en');
   document.getElementById('langES').classList.toggle('active', lang==='es');
-  // Refresh live content if already loaded
   if (all.length > 0) {
     renderSpotlight();
     renderSeriesList();
     updateProgress();
     const q = document.getElementById('q').value.toLowerCase().trim();
-    if (q) onSearch();
+    if (q) runSearch();
   }
 }
 
@@ -453,13 +479,15 @@ function setLang(l) { lang = l; applyLang(); }
 // State
 // ─────────────────────────────────────────────────────────────────────────────
 const USER = 'Cinabrio';
+const UNCLASSIFIED = '\u0000unclassified';   // stable internal key, language-independent
+
 let all          = [];
 let groups       = {};
-let seriesKeys   = [];
+let seriesKeys   = [];     // ordered by model count (used for stats/index map)
 let aType        = 'all';
 let aBase        = 'all';
 let spotMode     = 'char';   // 'char' | 'collection' | 'manual'
-let activeSeries = null;
+let activeSeries = null;     // holds a series KEY (not display name)
 let loadingDone  = false;
 let estimatedTotal = 0;
 
@@ -472,9 +500,14 @@ const idxToName = [];
 function parse(m) {
   const raw = m.name || '';
   const i   = raw.indexOf(' | ');
-  return i !== -1
-    ? { char: raw.slice(0,i).trim(), series: raw.slice(i+3).trim() }
-    : { char: raw.trim(), series: s().unclassified };
+  if (i !== -1) {
+    const series = raw.slice(i+3).trim();
+    return { char: raw.slice(0,i).trim(), series, key: series };
+  }
+  return { char: raw.trim(), series: s().unclassified, key: UNCLASSIFIED };
+}
+function seriesDisplay(key) {
+  return key === UNCLASSIFIED ? s().unclassified : key;
 }
 function getBase(m) {
   const bm = (m.modelVersions?.[0]?.baseModel || '').toLowerCase();
@@ -485,15 +518,13 @@ function getBase(m) {
   if (bm.includes('sd 1'))  return 'sd15';
   return 'other';
 }
+// Best available thumbnail — prefer a 'None'-rated image, otherwise the first.
 function thumb(m) {
-  try {
-    const imgs = m.modelVersions?.[0]?.images;
-    if (imgs?.length) {
-      const img = imgs.find(i => (i.nsfwLevel||'None')==='None') || imgs[0];
-      if (img?.url) return img.url.replace('/original/','/width=400/');
-    }
-  } catch(_) {}
-  return null;
+  const imgs = m.modelVersions?.[0]?.images || [];
+  if (!imgs.length) return null;
+  const safe = imgs.find(i => (i.nsfwLevel||'None')==='None');
+  const img  = safe || imgs[0];
+  return img?.url ? img.url.replace('/original/','/width=400/') : null;
 }
 function esc(str) {
   return String(str)
@@ -505,7 +536,7 @@ function esc(str) {
 // Cards
 // ─────────────────────────────────────────────────────────────────────────────
 const PH = `<div class="ph"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>`;
-window.__PH = PH;
+window.__PH   = PH;
 
 function typeTag(type) {
   const lbl = {LORA:'LoRA',LoCon:'LyCORIS',Checkpoint:'Checkpoint',TextualInversion:'TI',Hypernetwork:'HN'}[type]||type;
@@ -518,7 +549,7 @@ function baseTag(b) {
   return '';
 }
 function cardHTML(m, linkSeries) {
-  const {char, series} = parse(m);
+  const {char, key} = parse(m);
   const img = thumb(m);
   const b   = getBase(m);
   const url = `https://civitai.red/models/${m.id}`;
@@ -526,12 +557,12 @@ function cardHTML(m, linkSeries) {
     ? `<img src="${img}" alt="" loading="lazy" onerror="this.parentElement.innerHTML=window.__PH"/>`
     : PH;
   const seriesEl = linkSeries
-    ? `<button class="cs-link" onclick="event.preventDefault();event.stopPropagation();openSeriesByName('${esc(series)}')" title="${esc(series)}">${esc(series)}</button>`
-    : `<div class="cs">${esc(series)}</div>`;
+    ? `<span class="cs-link" role="link" tabindex="0" data-series="${esc(key)}" title="${esc(seriesDisplay(key))}">${esc(seriesDisplay(key))}</span>`
+    : `<div class="cs" title="${esc(seriesDisplay(key))}">${esc(seriesDisplay(key))}</div>`;
   return `<a class="card" href="${url}" target="_blank" rel="noopener">
     <div class="ci">${imgEl}</div>
     <div class="cb">
-      <div class="cn">${esc(char)}</div>
+      <div class="cn" title="${esc(char)}">${esc(char)}</div>
       ${seriesEl}
       <div class="ct">${typeTag(m.type)}${baseTag(b)}</div>
     </div>
@@ -549,7 +580,6 @@ function applyTypeBase(list) {
   });
 }
 function sortList(list) {
-  // Default: newest first (no UI control, fixed sort)
   return [...list].sort((a,b) => new Date(b.createdAt||0)-new Date(a.createdAt||0));
 }
 
@@ -563,7 +593,26 @@ function goHome() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Spotlight
+// LEFT sidebar — series index (compact rows, name + count, alphabetical)
+// ─────────────────────────────────────────────────────────────────────────────
+function seriesRowHTML(key) {
+  const cnt = (groups[key]||[]).length;
+  return `<button class="series-row${key===activeSeries?' active':''}" data-series="${esc(key)}" title="${esc(seriesDisplay(key))}">
+    <span class="row-meta"><span class="row-name">${esc(seriesDisplay(key))}</span></span>
+    <span class="se-count">${cnt}</span>
+  </button>`;
+}
+
+function renderSeriesList() {
+  document.getElementById('seriesListCount').textContent = s().seriesCount(seriesKeys.length);
+  const keys = seriesKeys.slice().sort((a,b) => seriesDisplay(a).localeCompare(seriesDisplay(b)));
+  document.getElementById('seriesList').innerHTML = keys.length
+    ? keys.map(seriesRowHTML).join('')
+    : `<div class="empty-sm">${s().noModels}</div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Spotlight (center)
 // ─────────────────────────────────────────────────────────────────────────────
 function renderSpotlight() {
   const grid = document.getElementById('spotGrid');
@@ -579,9 +628,9 @@ function renderSpotlight() {
   } else if (spotMode === 'collection') {
     const keys = Object.keys(groups);
     if (!keys.length) return;
-    const name  = keys[Math.floor(Math.random()*keys.length)];
-    const items = sortList(applyTypeBase(groups[name]||[]));
-    document.getElementById('spotTitle').textContent = name;
+    const key   = keys[Math.floor(Math.random()*keys.length)];
+    const items = sortList(applyTypeBase(groups[key]||[]));
+    document.getElementById('spotTitle').textContent = seriesDisplay(key);
     document.getElementById('spotCount').textContent = s().modelCount(items.length);
     grid.innerHTML = items.map(m=>cardHTML(m,false)).join('')
       || `<div class="empty">${s().noModels}</div>`;
@@ -590,7 +639,7 @@ function renderSpotlight() {
 
   } else if (spotMode === 'manual' && activeSeries) {
     const items = sortList(applyTypeBase(groups[activeSeries]||[]));
-    document.getElementById('spotTitle').textContent = activeSeries;
+    document.getElementById('spotTitle').textContent = seriesDisplay(activeSeries);
     document.getElementById('spotCount').textContent = s().modelCount(items.length);
     grid.innerHTML = items.map(m=>cardHTML(m,false)).join('')
       || `<div class="empty">${s().noCollModels}</div>`;
@@ -621,54 +670,32 @@ function setMode(mode) {
   renderSeriesList();
 }
 
-function renderSeriesList() {
-  document.getElementById('seriesListCount').textContent = s().seriesCount(seriesKeys.length);
-  document.getElementById('seriesListGrid').innerHTML = seriesKeys.map(name => {
-    const idx = nameToIdx.get(name);
-    const cnt = (groups[name]||[]).length;
-    return `<button class="series-entry${name===activeSeries?' active':''}" onclick="openSeriesManual(${idx})">
-      <span class="se-name">${esc(name)}</span>
-      <span class="se-count">${cnt}</span>
-    </button>`;
-  }).join('');
-}
-
-function openSeriesManual(idx) {
-  const name = idxToName[idx];
-  if (!name) return;
-  // Toggle off if already active
-  if (activeSeries===name && spotMode==='manual') {
+function openSeriesByKey(key) {
+  if (key===undefined || key===null || !groups[key]) return;
+  goHome();
+  if (activeSeries===key && spotMode==='manual') {
     activeSeries=null; spotMode='char';
     document.getElementById('btnChar').classList.add('active-rand');
     document.getElementById('btnColl').classList.remove('active-rand');
-    goHome(); renderSpotlight(); renderSeriesList();
+    renderSpotlight(); renderSeriesList();
     document.getElementById('spotGrid').scrollIntoView({behavior:'smooth',block:'start'});
     return;
   }
-  activeSeries=name; spotMode='manual';
+  activeSeries=key; spotMode='manual';
   document.getElementById('btnChar').classList.remove('active-rand');
   document.getElementById('btnColl').classList.remove('active-rand');
-  goHome(); renderSpotlight(); renderSeriesList();
+  renderSpotlight(); renderSeriesList();
   document.getElementById('spotGrid').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-function openSeriesByName(name) {
-  const idx = nameToIdx.get(name);
-  if (idx===undefined) return;
-  goHome();
-  openSeriesManual(idx);
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
-// Search — auto-detects mode: comma → tag AND filter, no comma → name/series
+// Search — comma → tag AND filter, no comma → name/series
 // ─────────────────────────────────────────────────────────────────────────────
+let searchTimer = null;
 
-// Extract tags from a model (lowercased) — uses trainedWords + m.tags
 function modelTags(m) {
   const result = new Set();
-  // m.tags — general category tags (array of strings)
   (m.tags || []).forEach(t => result.add(String(t).toLowerCase().trim()));
-  // trainedWords — activation prompt tags, each element may contain comma-separated values
   (m.modelVersions?.[0]?.trainedWords || []).forEach(entry => {
     String(entry).split(',').forEach(t => {
       const clean = t.toLowerCase().trim();
@@ -678,23 +705,26 @@ function modelTags(m) {
   return result;
 }
 
-// Update placeholder based on whether input contains a comma
 function updatePlaceholder() {
   const q = document.getElementById('q').value;
-  document.getElementById('q').placeholder = q.includes(',')
-    ? s().searchPHtags
-    : s().searchPH;
+  document.getElementById('q').placeholder = q.includes(',') ? s().searchPHtags : s().searchPH;
 }
 
 function onSearch() {
   const raw = document.getElementById('q').value;
-  const q   = raw.toLowerCase().trim();
   updatePlaceholder();
 
-  // Show autocomplete for the current fragment being typed
   const frag = currentFragment(raw);
   if (frag.length >= 1) renderDropdown(frag);
   else closeDropdown();
+
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(runSearch, 160);
+}
+
+function runSearch() {
+  const raw = document.getElementById('q').value;
+  const q   = raw.toLowerCase().trim();
 
   if (!q) {
     document.getElementById('viewBrowse').style.display='none';
@@ -702,22 +732,19 @@ function onSearch() {
     return;
   }
 
-  let results;
-  let titleText;
+  let results, titleText;
 
   if (raw.includes(',')) {
-    // ── Tag mode: split by comma, ALL tags must match (AND logic) ──
     const tags = q.split(',').map(t => t.trim()).filter(t => t.length > 0);
     results = sortList(applyTypeBase(all).filter(m => {
-      const mTags = modelTags(m);  // returns a Set
-      return tags.every(tag => [...mTags].some(mt => mt.includes(tag)));
+      const mTags = [...modelTags(m)];
+      return tags.every(tag => mTags.some(mt => mt.includes(tag)));
     }));
     titleText = s().resultsForTags(tags);
   } else {
-    // ── Name mode: search by character name and series ──
     results = sortList(applyTypeBase(all).filter(m => {
-      const {char, series} = parse(m);
-      return char.toLowerCase().includes(q) || series.toLowerCase().includes(q);
+      const {char, key} = parse(m);
+      return char.toLowerCase().includes(q) || seriesDisplay(key).toLowerCase().includes(q);
     }));
     titleText = s().resultsFor(q);
   }
@@ -731,18 +758,14 @@ function onSearch() {
   document.getElementById('viewBrowse').style.display='';
 }
 
-// Close dropdown when clicking anywhere outside the search wrap
-document.addEventListener('click', e => {
-  if (!e.target.closest('.search-wrap')) closeDropdown();
-});
-
 function setF(btn, g) {
   document.querySelectorAll(`[data-g="${g}"]`).forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   if (g==='type') aType=btn.dataset.v;
   if (g==='base') aBase=btn.dataset.v;
   const q=document.getElementById('q').value.toLowerCase().trim();
-  if (q) onSearch(); else { renderSpotlight(); renderSeriesList(); }
+  if (q) runSearch();
+  else { renderSpotlight(); renderSeriesList(); }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -755,25 +778,19 @@ function updateStats() {
   document.getElementById('sPony').textContent   = all.filter(m=>getBase(m)==='pony').length;
 }
 
-// ── Tag frequency index ───────────────────────────────────────────────────────
-let tagIndex = new Map(); // tag → count
-
+let tagIndex = new Map();
 function rebuildTagIndex() {
   tagIndex.clear();
-  all.forEach(m => {
-    modelTags(m).forEach(tag => {
-      tagIndex.set(tag, (tagIndex.get(tag) || 0) + 1);
-    });
-  });
+  all.forEach(m => { modelTags(m).forEach(tag => tagIndex.set(tag, (tagIndex.get(tag) || 0) + 1)); });
 }
 
 function rebuildGroups() {
   const prevActive = activeSeries;
   groups={};
-  all.forEach(m=>{ const name=parse(m).series; (groups[name]||(groups[name]=[])).push(m); });
+  all.forEach(m=>{ const key=parse(m).key; (groups[key]||(groups[key]=[])).push(m); });
   seriesKeys=Object.keys(groups).sort((a,b)=>groups[b].length-groups[a].length);
   nameToIdx.clear(); idxToName.length=0;
-  seriesKeys.forEach((name,i)=>{ nameToIdx.set(name,i); idxToName[i]=name; });
+  seriesKeys.forEach((key,i)=>{ nameToIdx.set(key,i); idxToName[i]=key; });
   activeSeries=(prevActive&&groups[prevActive])?prevActive:activeSeries;
   rebuildTagIndex();
 }
@@ -783,13 +800,10 @@ function rebuildGroups() {
 // ─────────────────────────────────────────────────────────────────────────────
 let acFocusIdx = -1;
 
-// Get the fragment the user is currently typing (after last comma)
 function currentFragment(val) {
   const lastComma = val.lastIndexOf(',');
   return lastComma === -1 ? val.trim() : val.slice(lastComma + 1).trimStart();
 }
-
-// Get the prefix (everything up to and including last comma+space)
 function currentPrefix(val) {
   const lastComma = val.lastIndexOf(',');
   return lastComma === -1 ? '' : val.slice(0, lastComma + 1) + ' ';
@@ -800,7 +814,6 @@ function renderDropdown(fragment) {
   if (!fragment || fragment.length < 1) { closeDropdown(); return; }
 
   const frag = fragment.toLowerCase();
-  // Filter tags containing the fragment, sort by count desc, limit 10
   const matches = [...tagIndex.entries()]
     .filter(([tag]) => tag.includes(frag))
     .sort((a, b) => b[1] - a[1])
@@ -810,13 +823,12 @@ function renderDropdown(fragment) {
 
   acFocusIdx = -1;
   dd.innerHTML = matches.map(([tag, count], i) => {
-    // Highlight the matching fragment inside the tag
     const hi = tag.replace(
       new RegExp(frag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
       match => `<em>${match}</em>`
     );
     return `<button class="ac-item" data-idx="${i}" data-tag="${esc(tag)}"
-      onmousedown="acSelect('${esc(tag)}')" onmouseover="acHover(${i})">
+      onmousedown="acSelect(this.dataset.tag)" onmouseover="acHover(${i})">
       <span class="ac-item-tag">${hi}</span>
       <span class="ac-item-count">${count}</span>
     </button>`;
@@ -836,15 +848,13 @@ function acSelect(tag) {
   input.value = prefix + tag + ', ';
   closeDropdown();
   input.focus();
-  onSearch();
   updatePlaceholder();
+  runSearch();
 }
 
 function acHover(idx) {
   acFocusIdx = idx;
-  document.querySelectorAll('.ac-item').forEach((el, i) =>
-    el.classList.toggle('focused', i === idx)
-  );
+  document.querySelectorAll('.ac-item').forEach((el, i) => el.classList.toggle('focused', i === idx));
 }
 
 function onSearchKey(e) {
@@ -872,6 +882,26 @@ function onSearchKey(e) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Global click delegation — series rows + in-card series links
+// ─────────────────────────────────────────────────────────────────────────────
+document.addEventListener('click', e => {
+  const cs = e.target.closest('.cs-link');
+  if (cs) { e.preventDefault(); e.stopPropagation(); openSeriesByKey(cs.dataset.series); return; }
+
+  const row = e.target.closest('.series-row');
+  if (row) { openSeriesByKey(row.dataset.series); return; }
+
+  if (!e.target.closest('.search-wrap')) closeDropdown();
+});
+
+document.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.classList?.contains('cs-link')) {
+    e.preventDefault();
+    openSeriesByKey(e.target.dataset.series);
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // API load
 // ─────────────────────────────────────────────────────────────────────────────
 function updateProgress() {
@@ -897,6 +927,7 @@ async function loadAll() {
     rebuildGroups(); updateStats();
 
     document.getElementById('splash').style.display='none';
+    document.getElementById('layout').style.display='';
     document.getElementById('viewHome').style.display='';
     renderSpotlight(); renderSeriesList();
 
@@ -920,9 +951,9 @@ async function loadAll() {
           }
         }
       }
-      loadingDone=true;
       document.getElementById('loadStrip').classList.remove('visible');
     }
+    loadingDone=true;
   } catch(e) {
     document.getElementById('splash').style.display='none';
     const el=document.getElementById('viewError');
