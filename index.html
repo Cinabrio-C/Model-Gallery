@@ -30,6 +30,7 @@
     --side-w: 244px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  button, a, input, .series-row, .card { -webkit-tap-highlight-color: transparent; }
   body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; min-height: 100vh; overflow-x: hidden; }
   body::before {
     content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
@@ -118,6 +119,23 @@
   .rand-btn.active-rand { background: rgba(107,203,160,0.18); border-color: #6bcba0; color: #b8f0df; }
   .rand-icon { display: inline-flex; transition: transform 0.4s ease; }
   .rand-btn:hover .rand-icon { transform: rotate(180deg); }
+
+  /* ── Mobile filter toggle + collapsible panel (desktop: transparent) ── */
+  .filter-toggle {
+    display: none; align-items: center; justify-content: center;
+    width: 40px; height: 38px; flex-shrink: 0; position: relative;
+    border-radius: 5px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text-sec);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .filter-toggle:hover { border-color: var(--border-hover); color: var(--text); }
+  .filter-toggle.open { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+  .filter-toggle.has-active::after {
+    content: ''; position: absolute; top: 5px; right: 5px;
+    width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  }
+  .filter-panel { display: contents; }
+  .lang-wrap    { display: contents; }
 
   /* ── Main ── */
   main { position: relative; z-index: 10; max-width: 2400px; margin: 0 auto; padding: 2rem; }
@@ -251,13 +269,43 @@
     .series-row { flex: 0 0 auto; width: 184px; }
     .spotlight-grid, .grid { grid-template-columns: repeat(3, 1fr); }
   }
-  @media (max-width: 600px) {
-    header { padding: 2rem 1rem 1.5rem; }
-    main { padding: 1.1rem 0.9rem; }
-    .controls { padding: 0.7rem 0.9rem; }
-    .spotlight-grid, .grid { grid-template-columns: repeat(2, 1fr); }
-    .rand-btns { margin-left: 0; }
+
+  /* ── Mobile (phones): collapse controls into a toggle panel ── */
+  @media (max-width: 720px) {
+    header { padding: 2rem 1rem 1.4rem; }
+    main { padding: 1rem 0.85rem; }
+    .stats-bar { gap: 1rem 1.5rem; padding: 1rem; }
+    .stat-val { font-size: 1.2rem; }
+
+    .controls { flex-wrap: nowrap; gap: 0.5rem; padding: 0.6rem 0.85rem; }
+    .search-wrap { max-width: none; min-width: 0; }
+    input[type="text"] { font-size: 16px; }            /* prevents iOS zoom-on-focus */
+    .filter-toggle { display: inline-flex; }
+
+    .filter-panel {
+      display: none; position: absolute; top: calc(100% + 1px); left: 0; right: 0;
+      flex-direction: column; align-items: stretch; gap: 0.7rem;
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 0.9rem 0.95rem 1rem; box-shadow: 0 14px 28px rgba(0,0,0,0.45); z-index: 90;
+    }
+    .filter-panel.open { display: flex; }
+    .vsep { display: none; }
+    .fg { width: 100%; gap: 0.4rem; }
+    .fb { flex: 1; text-align: center; padding: 0.6rem 0.4rem; font-size: 0.78rem; }
+    .rand-btns { margin-left: 0; width: 100%; gap: 0.5rem; }
+    .rand-btn { flex: 1; justify-content: center; padding: 0.65rem 0.5rem; font-size: 0.8rem; }
+    .lang-wrap { display: flex; gap: 0.4rem; }
+    .lang-btn { flex: 1; text-align: center; padding: 0.5rem; }
+
+    .spotlight-grid, .grid { grid-template-columns: repeat(2, 1fr); gap: 0.7rem; }
+    .cn { font-size: 0.82rem; }
+    .cs, .cs-link { font-size: 0.74rem; }
   }
+  @media (max-width: 380px) {
+    .spotlight-grid, .grid { gap: 0.55rem; }
+    .series-row { width: 160px; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .card { animation: none; }
     .card:hover { transform: none; }
@@ -296,30 +344,37 @@
     <input type="text" id="q" oninput="onSearch()" onkeydown="onSearchKey(event)" autocomplete="off"/>
     <div class="ac-dropdown" id="acDropdown"></div>
   </div>
-  <div class="fg">
-    <button class="fb active" data-g="type" data-v="all"        onclick="setF(this,'type')" id="fb-all-type"></button>
-    <button class="fb"        data-g="type" data-v="LORA"       onclick="setF(this,'type')">LoRA</button>
-    <button class="fb"        data-g="type" data-v="Checkpoint" onclick="setF(this,'type')">Checkpoint</button>
+  <button class="filter-toggle" id="filterToggle" onclick="toggleFilters()" aria-label="Filtros" aria-expanded="false">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+  </button>
+  <div class="filter-panel" id="filterPanel">
+    <div class="fg">
+      <button class="fb active" data-g="type" data-v="all"        onclick="setF(this,'type')" id="fb-all-type"></button>
+      <button class="fb"        data-g="type" data-v="LORA"       onclick="setF(this,'type')">LoRA</button>
+      <button class="fb"        data-g="type" data-v="Checkpoint" onclick="setF(this,'type')">Checkpoint</button>
+    </div>
+    <div class="vsep"></div>
+    <div class="fg">
+      <button class="fb active" data-g="base" data-v="all"         onclick="setF(this,'base')" id="fb-all-base"></button>
+      <button class="fb illus"  data-g="base" data-v="illustrious" onclick="setF(this,'base')">Illustrious</button>
+      <button class="fb pony"   data-g="base" data-v="pony"        onclick="setF(this,'base')">Pony</button>
+    </div>
+    <div class="rand-btns">
+      <button class="rand-btn active-rand" id="btnChar" onclick="setMode('char')">
+        <span class="rand-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></span>
+        <span id="txt-btn-char"></span>
+      </button>
+      <button class="rand-btn" id="btnColl" onclick="setMode('collection')">
+        <span class="rand-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></span>
+        <span id="txt-btn-coll"></span>
+      </button>
+    </div>
+    <div class="vsep"></div>
+    <div class="lang-wrap">
+      <button class="lang-btn active" id="langEN" onclick="setLang('en')">EN</button>
+      <button class="lang-btn"        id="langES" onclick="setLang('es')">ES</button>
+    </div>
   </div>
-  <div class="vsep"></div>
-  <div class="fg">
-    <button class="fb active" data-g="base" data-v="all"         onclick="setF(this,'base')" id="fb-all-base"></button>
-    <button class="fb illus"  data-g="base" data-v="illustrious" onclick="setF(this,'base')">Illustrious</button>
-    <button class="fb pony"   data-g="base" data-v="pony"        onclick="setF(this,'base')">Pony</button>
-  </div>
-  <div class="rand-btns">
-    <button class="rand-btn active-rand" id="btnChar" onclick="setMode('char')">
-      <span class="rand-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></span>
-      <span id="txt-btn-char"></span>
-    </button>
-    <button class="rand-btn" id="btnColl" onclick="setMode('collection')">
-      <span class="rand-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></span>
-      <span id="txt-btn-coll"></span>
-    </button>
-  </div>
-  <div class="vsep"></div>
-  <button class="lang-btn active" id="langEN" onclick="setLang('en')">EN</button>
-  <button class="lang-btn"        id="langES" onclick="setLang('es')">ES</button>
 </div>
 
 <!-- Background load progress strip -->
@@ -491,6 +546,7 @@ let activeSeries = null;     // holds a series KEY (not display name)
 let loadingDone  = false;
 let estimatedTotal = 0;
 
+const seenIds   = new Set();   // dedupe models across both domains
 const nameToIdx = new Map();
 const idxToName = [];
 
@@ -531,6 +587,11 @@ function esc(str) {
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
+// Route each model's page link to the domain that can actually display it:
+// mature models → civitai.red, SFW models → civitai.com.
+function modelUrl(m) {
+  return `https://${m.nsfw ? 'civitai.red' : 'civitai.com'}/models/${m.id}`;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Cards
@@ -552,7 +613,7 @@ function cardHTML(m, linkSeries) {
   const {char, key} = parse(m);
   const img = thumb(m);
   const b   = getBase(m);
-  const url = `https://civitai.red/models/${m.id}`;
+  const url = modelUrl(m);
   const imgEl = img
     ? `<img src="${img}" alt="" loading="lazy" onerror="this.parentElement.innerHTML=window.__PH"/>`
     : PH;
@@ -664,6 +725,7 @@ function setMode(mode) {
   spotMode = mode;
   activeSeries = null;
   goHome();
+  closeFilters();
   document.getElementById('btnChar').classList.toggle('active-rand', mode==='char');
   document.getElementById('btnColl').classList.toggle('active-rand', mode==='collection');
   renderSpotlight();
@@ -763,9 +825,31 @@ function setF(btn, g) {
   btn.classList.add('active');
   if (g==='type') aType=btn.dataset.v;
   if (g==='base') aBase=btn.dataset.v;
+  updateFilterIndicator();
   const q=document.getElementById('q').value.toLowerCase().trim();
   if (q) runSearch();
   else { renderSpotlight(); renderSeriesList(); }
+}
+
+// ── Mobile filter panel ──
+function toggleFilters() {
+  const p = document.getElementById('filterPanel');
+  const t = document.getElementById('filterToggle');
+  const open = p.classList.toggle('open');
+  t.classList.toggle('open', open);
+  t.setAttribute('aria-expanded', String(open));
+}
+function closeFilters() {
+  const p = document.getElementById('filterPanel');
+  if (!p.classList.contains('open')) return;
+  p.classList.remove('open');
+  const t = document.getElementById('filterToggle');
+  t.classList.remove('open');
+  t.setAttribute('aria-expanded', 'false');
+}
+function updateFilterIndicator() {
+  document.getElementById('filterToggle')
+    .classList.toggle('has-active', aType!=='all' || aBase!=='all');
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -885,13 +969,14 @@ function onSearchKey(e) {
 // Global click delegation — series rows + in-card series links
 // ─────────────────────────────────────────────────────────────────────────────
 document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) closeDropdown();
+  if (!e.target.closest('.controls'))    closeFilters();
+
   const cs = e.target.closest('.cs-link');
   if (cs) { e.preventDefault(); e.stopPropagation(); openSeriesByKey(cs.dataset.series); return; }
 
   const row = e.target.closest('.series-row');
   if (row) { openSeriesByKey(row.dataset.series); return; }
-
-  if (!e.target.closest('.search-wrap')) closeDropdown();
 });
 
 document.addEventListener('keydown', e => {
@@ -910,56 +995,79 @@ function updateProgress() {
   document.getElementById('loadTxt').textContent = s().loadingN(all.length, estimatedTotal);
 }
 
-async function fetchPage(cursor) {
-  let url=`https://civitai.red/api/v1/models?username=${USER}&limit=100&sort=Newest&nsfw=true`;
-  if (cursor) url+=`&cursor=${encodeURIComponent(cursor)}`;
-  const res=await fetch(url);
+// Two content domains after Civitai's red/green split (Apr 2026):
+//   · civitai.com → "green": only SFW (PG / PG-13); mature content is filtered out.
+//   · civitai.red → mature levels (R / X / XXX); SFW-only models don't surface here.
+// The /models endpoint ignores `browsingLevel` (unknown params are dropped) and its
+// level filtering is driven by the request domain, so neither domain returns the
+// full library on its own. We pull from BOTH and merge, deduping by model id.
+const SOURCES = ['https://civitai.red', 'https://civitai.com'];
+
+function addItems(items) {
+  for (const m of (items||[])) {
+    if (m && m.id!=null && !seenIds.has(m.id)) { seenIds.add(m.id); all.push(m); }
+  }
+}
+function currentQuery() { return document.getElementById('q').value.toLowerCase().trim(); }
+function updateManualCount() {
+  if (spotMode==='manual' && activeSeries)
+    document.getElementById('spotCount').textContent = s().modelCount((groups[activeSeries]||[]).length);
+}
+
+async function fetchPage(base, cursor) {
+  let url = `${base}/api/v1/models?username=${USER}&limit=100&sort=Newest&nsfw=true`;
+  if (cursor) url += `&cursor=${encodeURIComponent(cursor)}`;
+  const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
-async function loadAll() {
-  document.getElementById('splash').style.display='flex';
-  try {
-    const first=await fetchPage(null);
-    all.push(...(first.items||[]));
-    estimatedTotal=first.metadata?.totalItems||0;
+let paintedOnce = false;
+function firstPaint() {
+  if (paintedOnce) return;
+  paintedOnce = true;
+  document.getElementById('splash').style.display = 'none';
+  document.getElementById('layout').style.display = '';
+  document.getElementById('viewHome').style.display = '';
+  document.getElementById('loadStrip').classList.add('visible');
+  renderSpotlight();
+  renderSeriesList();
+}
+
+async function loadDomain(base) {
+  let cursor = null, page = 0, first = true, ok = false;
+  do {
+    if (!first) await new Promise(r => setTimeout(r, 220));
+    const data = await fetchPage(base, cursor);
+    addItems(data.items || []);
+    if (first) estimatedTotal += (data.metadata?.totalItems || 0);
+    first = false; ok = true;
     rebuildGroups(); updateStats();
+    firstPaint();
+    updateProgress();
+    if (!currentQuery()) { renderSeriesList(); updateManualCount(); }
+    cursor = data.metadata?.nextCursor || null;
+    page++;
+  } while (cursor && page < 50);
+  return ok;
+}
 
-    document.getElementById('splash').style.display='none';
-    document.getElementById('layout').style.display='';
-    document.getElementById('viewHome').style.display='';
-    renderSpotlight(); renderSeriesList();
-
-    let cursor=first.metadata?.nextCursor||null;
-    if (cursor) {
-      document.getElementById('loadStrip').classList.add('visible');
-      updateProgress();
-      let page=0;
-      while (cursor && page<50) {
-        await new Promise(r=>setTimeout(r,220));
-        const data=await fetchPage(cursor);
-        all.push(...(data.items||[]));
-        cursor=data.metadata?.nextCursor||null;
-        page++;
-        rebuildGroups(); updateStats(); updateProgress();
-        const q=document.getElementById('q').value.toLowerCase().trim();
-        if (!q) {
-          renderSeriesList();
-          if (spotMode==='manual'&&activeSeries) {
-            document.getElementById('spotCount').textContent=s().modelCount((groups[activeSeries]||[]).length);
-          }
-        }
-      }
-      document.getElementById('loadStrip').classList.remove('visible');
-    }
-    loadingDone=true;
-  } catch(e) {
-    document.getElementById('splash').style.display='none';
-    const el=document.getElementById('viewError');
-    el.textContent=s().error(e.message);
-    el.style.display='block';
-    document.getElementById('loadStrip').classList.remove('visible');
+async function loadAll() {
+  document.getElementById('splash').style.display = 'flex';
+  let anyOk = false, lastErr = null;
+  for (const base of SOURCES) {
+    try { if (await loadDomain(base)) anyOk = true; }
+    catch (e) { lastErr = e; console.warn('Civitai source failed:', base, e.message); }
+  }
+  document.getElementById('loadStrip').classList.remove('visible');
+  loadingDone = true;
+  if (!anyOk) {
+    document.getElementById('splash').style.display = 'none';
+    const el = document.getElementById('viewError');
+    el.textContent = s().error(lastErr ? lastErr.message : 'unknown');
+    el.style.display = 'block';
+  } else {
+    firstPaint(); // ensure the layout is shown even if a domain returned zero items
   }
 }
 
@@ -967,6 +1075,7 @@ async function loadAll() {
 // Init
 // ─────────────────────────────────────────────────────────────────────────────
 applyLang();
+updateFilterIndicator();
 loadAll();
 </script>
 
